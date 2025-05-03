@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>🔥 Spam Clicker Game</title>
+  <style>
+    body {
+      font-family: 'Comic Sans MS', sans-serif;
+      background: linear-gradient(to right, #fcb045, #fd1d1d, #833ab4);
+      color: white;
+      text-align: center;
+      padding: 50px;
+    }
+
+    h1 {
+      font-size: 60px;
+      margin-bottom: 20px;
+      text-shadow: 2px 2px 5px #000;
+    }
+
+    button {
+      font-size: 24px;
+      padding: 15px 30px;
+      border: none;
+      border-radius: 30px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    #clickButton {
+      font-size: 40px;
+      padding: 25px 60px;
+      border-radius: 50px;
+      background-color: #00e5ff;
+      color: #000;
+      transition: transform 0.1s;
+    }
+
+    #clickButton:active {
+      transform: scale(1.1);
+      background-color: #00bcd4;
+    }
+
+    #upgradeButton {
+      background-color: #4caf50;
+      color: white;
+    }
+
+    #upgradeButton:hover {
+      background-color: #45a049;
+    }
+
+    #restartButton {
+      background-color: #ff5722;
+      color: white;
+      display: none;
+    }
+
+    #startButton {
+      background-color: #2196f3;
+      color: white;
+    }
+
+    #score, #upgradeCost, #timer, #highScore, #resultMessage {
+      font-size: 28px;
+      margin: 20px 0;
+    }
+
+    #gameUI {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <h1>🔥 Spam Clicker Game</h1>
+
+  <button id="startButton">🎮 Start Game</button>
+
+  <div id="gameUI">
+    <div id="score">Score: 0</div>
+    <div id="highScore">🏆 High Score: 0</div>
+    <div id="timer">Time Left: 30s</div>
+    <div id="resultMessage"></div>
+    <button id="clickButton">CLICK ME FAST!</button>
+    <div id="upgradeCost">Upgrade (Cost: 50) — Power: 1</div>
+    <button id="upgradeButton">Buy Upgrade</button>
+    <br>
+    <button id="restartButton">🔁 Restart Game</button>
+  </div>
+
+  <script>
+    let score = 0;
+    let clickPower = 1;
+    let upgradeCost = 50;
+    let timeLeft = 30;
+    let gameEnded = false;
+    let timerInterval;
+
+    const scoreDisplay = document.getElementById('score');
+    const highScoreDisplay = document.getElementById('highScore');
+    const clickButton = document.getElementById('clickButton');
+    const upgradeButton = document.getElementById('upgradeButton');
+    const restartButton = document.getElementById('restartButton');
+    const upgradeText = document.getElementById('upgradeCost');
+    const timerDisplay = document.getElementById('timer');
+    const startButton = document.getElementById('startButton');
+    const gameUI = document.getElementById('gameUI');
+    const resultMessage = document.getElementById('resultMessage');
+
+    // Load high score
+    let highScore = localStorage.getItem('highScore') || 0;
+    highScoreDisplay.textContent = `🏆 High Score: ${highScore}`;
+
+    startButton.addEventListener('click', () => {
+      startButton.style.display = 'none';
+      gameUI.style.display = 'block';
+      startGame();
+    });
+
+    clickButton.addEventListener('click', () => {
+      if (!gameEnded) {
+        score += clickPower;
+        updateDisplay();
+      }
+    });
+
+    upgradeButton.addEventListener('click', () => {
+      if (!gameEnded && score >= upgradeCost) {
+        score -= upgradeCost;
+        clickPower += 1;
+        upgradeCost = Math.floor(upgradeCost * 1.5);
+        updateDisplay();
+      } else if (!gameEnded) {
+        alert("Not enough points!");
+      }
+    });
+
+    restartButton.addEventListener('click', () => {
+      resetGame();
+    });
+
+    function updateDisplay() {
+      scoreDisplay.textContent = 'Score: ' + score;
+      upgradeText.textContent = `Upgrade (Cost: ${upgradeCost}) — Power: ${clickPower}`;
+    }
+
+    function endGame() {
+      gameEnded = true;
+      clickButton.disabled = true;
+      upgradeButton.disabled = true;
+      timerDisplay.textContent = `⏰ Time's up! Final Score: ${score}`;
+      clickButton.textContent = 'Game Over!';
+      restartButton.style.display = 'inline-block';
+
+      if (score > highScore) {
+        localStorage.setItem('highScore', score);
+        highScoreDisplay.textContent = `🏆 High Score: ${score}`;
+        resultMessage.textContent = "🎉 NEW HIGH SCORE!";
+      } else {
+        resultMessage.textContent = "😬 You can do better!";
+      }
+    }
+
+    function resetGame() {
+      score = 0;
+      clickPower = 1;
+      upgradeCost = 50;
+      timeLeft = 30;
+      gameEnded = false;
+      clickButton.disabled = false;
+      upgradeButton.disabled = false;
+      clickButton.textContent = 'CLICK ME FAST!';
+      restartButton.style.display = 'none';
+      resultMessage.textContent = "";
+      updateDisplay();
+      timerDisplay.textContent = 'Time Left: 30s';
+      clearInterval(timerInterval);
+      timerInterval = setInterval(gameTimer, 1000);
+    }
+
+    function gameTimer() {
+      if (timeLeft > 0) {
+        timeLeft--;
+        timerDisplay.textContent = 'Time Left: ' + timeLeft + 's';
+        if (timeLeft === 0) {
+          clearInterval(timerInterval);
+          endGame();
+        }
+      }
+    }
+
+    function startGame() {
+      updateDisplay();
+      resultMessage.textContent = "";
+      timerDisplay.textContent = 'Time Left: 30s';
+      timerInterval = setInterval(gameTimer, 1000);
+    }
+  </script>
+</body>
+</html>
